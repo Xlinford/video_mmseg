@@ -4,13 +4,11 @@ set -x
 unset SLURM_JOB_ID
 unset SLURM_JOBID
 
-CONFIG_FILE="configs/video/cityscapes/memory_ppm_sep_r50-d16_769x769_80k_cityscapes_video.py"
+CONFIG_FILE="configs/video/cityscapes/memory_r50-d8_769x769_80k_cityscapes_video.py"
 CONFIG_PY="${CONFIG_FILE##*/}"
 CONFIG="${CONFIG_PY%.*}"
-WORK_DIR="./work_dirs/${CONFIG}_k64_s4"
+WORK_DIR="./work_dirs/${CONFIG}_s2_r10"
 #WORK_DIR="./work_dirs/test"
-#WORK_DIR="./work_dirs/memory_ppm_r50-d8_769x769_80k_cityscapes_video_k64_s2"
-#CONFIG_FILE="${WORK_DIR}/memory_ppm_r50-d8_769x769_80k_cityscapes_video.py"
 SHOW_DIR="${WORK_DIR}/show"
 TMPDIR="${WORK_DIR}/tmp"
 CHECKPOINT="${WORK_DIR}/latest.pth"
@@ -31,9 +29,9 @@ JOB_NAME="video"
 GPUS=4
 GPUS_PER_NODE=2
 NODES=`expr $GPUS / $GPUS_PER_NODE`
-CPUS_PER_TASK=8
-NODELIST=g23,g24
-#NODELIST=g21,g22
+CPUS_PER_TASK=16
+#NODELIST=g23,g24
+NODELIST=g21,g22
 #NODELIST=g10,g11
 #NODELIST=g12,g13
 #NODELIST=g14,g15
@@ -44,7 +42,6 @@ NODELIST=g23,g24
 RANDOM_SEED=0
 
 echo -e '\nDistributed Training With Slurm.\n'
-echo -e "\nWork Dir: ${WORK_DIR}.\n"
 srun -p ${PARTITION} \
   --job-name=${JOB_NAME} \
   --nodelist=${NODELIST} \
@@ -57,11 +54,11 @@ srun -p ${PARTITION} \
   --seed $RANDOM_SEED \
   --launcher "slurm" \
   --work-dir $WORK_DIR \
-#  --options 'dist_params.port=29510' \
+  --options 'dist_params.port=29510' \
 #  --resume-from $CHECKPOINT \
+echo -e "\nWork Dir: ${WORK_DIR}.\n"
 
 ## evaluation
-#echo -e "\nWork Dir: ${WORK_DIR}.\n"
 #echo -e "\nEvaluation With Slurm.\n"
 #srun -p ${PARTITION} \
 #  --job-name=${JOB_NAME} \
@@ -79,19 +76,20 @@ srun -p ${PARTITION} \
 #  --tmpdir $TMPDIR \
 #  --options 'dist_params.port=29521'
 #    --out $RESULT_FILE \
+#echo -e "\nWork Dir: ${WORK_DIR}.\n"
 
-echo -e "\nWork Dir: ${WORK_DIR}.\n"
-srun -p ${PARTITION} \
-    --job-name=${JOB_NAME} \
-    --nodelist=${NODELIST%,*} \
-    --ntasks=1 \
-    --ntasks-per-node=1 \
-    --cpus-per-task=${CPUS_PER_TASK} \
-    --kill-on-bad-exit=1 \
-    python -u ./tools/test.py \
-    ${CONFIG_FILE} \
-    ${CHECKPOINT} \
-    --test-fps \
+#echo -e "\nWork Dir: ${WORK_DIR}.\n"
+#srun -p ${PARTITION} \
+#    --job-name=${JOB_NAME} \
+#    --nodelist=${NODELIST%,*} \
+#    --ntasks=1 \
+#    --ntasks-per-node=1 \
+#    --cpus-per-task=${CPUS_PER_TASK} \
+#    --kill-on-bad-exit=1 \
+#    python -u ./tools/test.py \
+#    ${CONFIG_FILE} \
+#    ${CHECKPOINT} \
+#    --test-fps \
 
 # visualization
 #echo -e "\nWork Dir: ${WORK_DIR}.\n"

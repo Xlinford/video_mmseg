@@ -151,8 +151,8 @@ def main():
 
     # build the dataloader
     # TODO: support multiple images per gpu (only minor changes are needed)
-    dataset = build_dataset(cfg.data.test, dict(test_mode=True))
     if args.test_fps:
+        dataset = build_dataset(cfg.data.test, dict(test_mode=True))
         data_loader = build_dataloader(
             dataset,
             samples_per_gpu=1,
@@ -162,6 +162,7 @@ def main():
         cfg.test_cfg = dict(mode='test', shape=args.test_shape)
         print('test cfg: ', cfg.test_cfg)
     else:
+        dataset = build_dataset(cfg.data.val, dict(test_mode=True))
         data_loader = build_dataloader(
             dataset,
             samples_per_gpu=cfg.data.samples_per_gpu,

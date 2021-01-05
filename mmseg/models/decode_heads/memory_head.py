@@ -46,7 +46,9 @@ class MemoryModule(nn.Module):
 
         memory_values = memory_values.permute(1, 2, 0, 3, 4).contiguous()  # BxCxTxHxW
         memory_values = memory_values.view(batch_size, value_channels, sequence_num * height * width)
-        memory = torch.bmm(memory_values, key_attention)  # BxCxH*W
+        memory_values = memory_values.permute(0, 2, 1).contiguous()  # BxT*H*WxC
+        memory = torch.bmm(key_attention, memory_values)  # BxH*WxC
+        memory = memory.permute(0, 2, 1).contiguous()  # BxCxH*W
         memory = memory.view(batch_size, value_channels, height, width)  # BxCxHxW
 
         query_memory = torch.cat([query_value, memory], dim=1)
@@ -54,11 +56,11 @@ class MemoryModule(nn.Module):
 
 
 @HEADS.register_module()
-class MemoryHead(BaseDecodeHead):
+class MemoryHead1(BaseDecodeHead):
     """Memory decoder for video semantic segmentation."""
 
     def __init__(self, sequence_num, key_channels, value_channels, **kwargs):
-        super(MemoryHead, self).__init__(**kwargs)
+        super(MemoryHead1, self).__init__(**kwargs)
         self.sequence_num = sequence_num
         self.memory_key_conv = SequenceConv(self.in_channels, key_channels, 3, sequence_num,
                                             self.conv_cfg, self.norm_cfg, self.act_cfg)

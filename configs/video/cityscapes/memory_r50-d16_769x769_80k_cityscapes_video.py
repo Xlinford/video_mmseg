@@ -3,9 +3,9 @@ _base_ = [
     '../../_base_/default_runtime.py', '../../_base_/schedules/schedule_80k.py'
 ]
 model = dict(
-    decode_head=dict(align_corners=True, sequence_num=4, key_channels=64, value_channels=256),
+    decode_head=dict(align_corners=True, sequence_num=4),
     auxiliary_head=dict(align_corners=True))
-data = dict(train=dict(sequence_range=10,
+data = dict(train=dict(sequence_range=4,
                        sequence_num=4),
             val=dict(sequence_range=4,
                      sequence_num=4),
